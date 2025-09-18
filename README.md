@@ -2,6 +2,12 @@
 
 **This starter is not recommended for new Vaadin Flow applications. Instead, visit [start.vaadin.com](https://start.vaadin.com/) to configure and download a Vaadin project that reflects the current best practices.**
 
+# Grupo ICCE
+
+111088 - Constanca Costa
+111812 - Eurisa Patricio
+122701 - Iris Baptista 
+122705 - Constanca Ferreira
 
 # Running the Project in Development Mode
 
