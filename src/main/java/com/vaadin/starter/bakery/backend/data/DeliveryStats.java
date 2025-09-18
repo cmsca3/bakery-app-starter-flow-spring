@@ -8,6 +8,7 @@ public class DeliveryStats {
 
 	/**
  	 * Numero de entregas realizadas no dia de hoje.
+     *
 	 */
 	private int deliveredToday;
 
