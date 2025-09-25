@@ -29,6 +29,9 @@ import com.vaadin.starter.bakery.backend.data.entity.Product;
 import com.vaadin.starter.bakery.backend.data.entity.User;
 import com.vaadin.starter.bakery.backend.repositories.OrderRepository;
 
+/**
+ * Serviço responsável por operações relacionadas a pedidos, como salvar, buscar, contar e gerar dados para o dashboard.
+ */
 @Service
 public class OrderService implements CrudService<Order> {
 
@@ -43,6 +46,15 @@ public class OrderService implements CrudService<Order> {
 	private static final Set<OrderState> notAvailableStates = Collections.unmodifiableSet(
 			EnumSet.complementOf(EnumSet.of(OrderState.DELIVERED, OrderState.READY, OrderState.CANCELLED)));
 
+    /**
+     * Salva uma ordem no repositório. Se o ID for nulo, cria uma nova ordem para o usuário atual.
+     * O preenchimento da ordem é feito pelo consumidor passado.
+     *
+     * @param currentUser Usuário atual que está realizando a operação.
+     * @param id Identificador da ordem. Se nulo, uma nova ordem será criada.
+     * @param orderFiller Função que preenche os dados da ordem.
+     * @return A ordem salva.
+     */
 	@Transactional(rollbackOn = Exception.class)
 	public Order saveOrder(User currentUser, Long id, BiConsumer<User, Order> orderFiller) {
 		Order order;
@@ -55,17 +67,38 @@ public class OrderService implements CrudService<Order> {
 		return orderRepository.save(order);
 	}
 
+    /**
+     * Salva uma ordem no repositório.
+     *
+     * @param order Ordem a ser salva.
+     * @return Ordem salva.
+     */
 	@Transactional(rollbackOn = Exception.class)
 	public Order saveOrder(Order order) {
 		return orderRepository.save(order);
 	}
-
+    /**
+     * Adiciona um comentário ao histórico da ordem e salva a ordem atualizada no repositório.
+     *
+     * @param currentUser Usuário atual que está adicionando o comentário.
+     * @param order Ordem à qual o comentário será adicionado.
+     * @param comment Comentário a ser adicionado.
+     * @return Ordem atualizada com o novo comentário.
+     */
 	@Transactional(rollbackOn = Exception.class)
 	public Order addComment(User currentUser, Order order, String comment) {
 		order.addHistoryItem(currentUser, comment);
 		return orderRepository.save(order);
 	}
 
+    /**
+     * Busca ordens que correspondem ao filtro e que possuem data de entrega após a data informada.
+     *
+     * @param optionalFilter Filtro pelo nome do cliente.
+     * @param optionalFilterDate Data mínima de entrega.
+     * @param pageable Paginação.
+     * @return Página de ordens encontradas.
+     */
 	public Page<Order> findAnyMatchingAfterDueDate(Optional<String> optionalFilter,
 			Optional<LocalDate> optionalFilterDate, Pageable pageable) {
 		if (optionalFilter.isPresent() && !optionalFilter.get().isEmpty()) {
@@ -83,12 +116,24 @@ public class OrderService implements CrudService<Order> {
 			}
 		}
 	}
-	
+
+    /**
+     * Busca resumos de ordens com data de entrega a partir de hoje.
+     *
+     * @return Lista de resumos de ordens encontradas.
+     */
 	@Transactional
 	public List<OrderSummary> findAnyMatchingStartingToday() {
 		return orderRepository.findByDueDateGreaterThanEqual(LocalDate.now());
 	}
 
+    /**
+     * Conta o número de ordens que correspondem ao filtro e possuem data de entrega após a data informada.
+     *
+     * @param optionalFilter Filtro pelo nome do cliente.
+     * @param optionalFilterDate Data mínima de entrega.
+     * @return Quantidade de ordens encontradas.
+     */
 	public long countAnyMatchingAfterDueDate(Optional<String> optionalFilter, Optional<LocalDate> optionalFilterDate) {
 		if (optionalFilter.isPresent() && optionalFilterDate.isPresent()) {
 			return orderRepository.countByCustomerFullNameContainingIgnoreCaseAndDueDateAfter(optionalFilter.get(),
@@ -116,6 +161,13 @@ public class OrderService implements CrudService<Order> {
 		return stats;
 	}
 
+    /**
+     * Gera os dados do dashboard para o mês e ano informados.
+     *
+     * @param month Mês desejado.
+     * @param year Ano desejado.
+     * @return Dados do dashboard.
+     */
 	public DashboardData getDashboardData(int month, int year) {
 		DashboardData data = new DashboardData();
 		data.setDeliveryStats(getDeliveryStats());
@@ -159,6 +211,7 @@ public class OrderService implements CrudService<Order> {
 		return flattenAndReplaceMissingWithNull(12, orderRepository.countPerMonth(OrderState.DELIVERED, year));
 	}
 
+
 	private List<Number> flattenAndReplaceMissingWithNull(int length, List<Object[]> list) {
 		List<Number> counts = new ArrayList<>();
 		for (int i = 0; i < length; i++) {
@@ -171,11 +224,22 @@ public class OrderService implements CrudService<Order> {
 		return counts;
 	}
 
+    /**
+     * Retorna o repositório JPA utilizado para operações CRUD.
+     *
+     * @return Repositório de ordens.
+     */
 	@Override
 	public JpaRepository<Order, Long> getRepository() {
 		return orderRepository;
 	}
 
+    /**
+     * Cria uma nova ordem para o usuário atual, com data e hora padrão.
+     *
+     * @param currentUser Usuário atual.
+     * @return Nova ordem criada.
+     */
 	@Override
 	@Transactional
 	public Order createNew(User currentUser) {
