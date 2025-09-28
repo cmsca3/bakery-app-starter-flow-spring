@@ -38,7 +38,6 @@ public class PickupLocationService implements FilterableCrudService<PickupLocati
     /**
      * Busca locais de coleta que correspondem ao filtro informado (ignora maiúsculas e minúsculas).
      * Caso o filtro esteja vazio, retorna todos os locais.
-     *
      * @param filter   filtro opcional para pesquisar pelo nome
      * @param pageable objeto {@link Pageable} para paginação e ordenação
      * @return página contendo os locais de coleta encontrados
