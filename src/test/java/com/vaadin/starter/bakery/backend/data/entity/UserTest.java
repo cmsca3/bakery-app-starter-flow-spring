@@ -5,6 +5,7 @@ import org.junit.Test;
 
 public class UserTest {
 
+	//testar git tags
 	@Test
 	public void equalsTest() {
 		User o1 = new User();
